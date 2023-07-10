@@ -1,29 +1,25 @@
 import { Button, Text, Heading, VStack, HStack, Input, Box, InputGroup, InputLeftElement, useToast, useDisclosure } from "@chakra-ui/react";
-import { FaLink, FaFaceGrinBeamSweat, FaFaceSadTear, FaFaceLaughSquint } from "react-icons/fa6";
+import { FaLink, FaFaceGrinBeamSweat, FaFaceSadTear, FaFaceLaughSquint, FaArrowLeftLong } from "react-icons/fa6";
 import { AiFillYoutube } from "react-icons/ai";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { ISearchLogPostError, ISearchLogPostSuccess, ISearchLogPostVariables, searchLogPost } from "../api";
 import { useState, useEffect } from "react";
+
 import ReplyModal from "../components/ReplyModal";
 import ReplyButton from "../components/ReplyButton";
+import { Link } from "react-router-dom";
 
-const positiveScore:any=[]
-const nagativeScore:any=[]
-const neutralScore:any=[]
+let positiveScore:any=[]
+let nagativeScore:any=[]
+let neutralScore:any=[]
 
 export default function Home(){
     const { register, watch, handleSubmit, formState:{errors} } = useForm<ISearchLogPostVariables>();
 
-    const { isOpen:isReplyOpen, onClose:onReplyClose, onOpen:onReplyOpen } = useDisclosure();
-
     const [ getReply, setGetReply ] = useState<any>(false);
-    const [ getPositiveReply, setGetPositiveReply ] = useState<any>(false);
-    const [ getNagativeReply, setGetNagativeReply ] = useState<any>(false);
-    const [ getNeutralReply, setGetNeutralReply ] = useState<any>(false);
     const [ getReplyLoading, setGetReplyLoading ] = useState<Boolean>(false);
     const [ getVideoLink, setGetVideoLink ] = useState<string>('');
-    const [ test, settest ] = useState<any>();
 
     const toast = useToast();
     const mutation = useMutation<ISearchLogPostSuccess, ISearchLogPostError, ISearchLogPostVariables>(searchLogPost, {
@@ -70,8 +66,6 @@ export default function Home(){
         })
         setGetReplyLoading(true)
     }, [getReply])
-
-    console.log(positiveScore)
 
     useEffect(()=>{
 
@@ -125,7 +119,7 @@ export default function Home(){
                             </Box>
                             {
                                 getReplyLoading?(
-                                    <VStack mt={10}>
+                                    <VStack mt={10} display={'flex'} justifyContent={'center'}>
                                         <Box display={'flex'} textAlign={'center'}>
                                             <Text as={'b'} fontSize={'2xl'}>
                                                 Click the button to read the comments
@@ -148,6 +142,17 @@ export default function Home(){
                                                 }
                                             </VStack>
                                         </HStack>
+
+                                        <Button leftIcon={<FaArrowLeftLong />} colorScheme="red" mt={10} onClick={() => {
+                                            positiveScore.splice(0, positiveScore.length)
+                                            nagativeScore.splice(0, nagativeScore.length)
+                                            neutralScore.splice(0, neutralScore.length)
+                                            setGetReply(false)
+                                            setGetReplyLoading(false)
+                                            setGetVideoLink('')
+                                        }}>
+                                            Go to Home
+                                        </Button>
                                     </VStack>
                                 ):null
                             }
