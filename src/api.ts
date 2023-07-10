@@ -4,7 +4,7 @@ import Cookie from "js-cookie";
 
 export const instance = axios.create({
     // baseURL : process.env.NODE_ENV === "development" ? "http://127.0.0.1:8000/api/v1/" : "https://backend.smartfarm-personal.xyz/api/v1/",
-    baseURL: process.env.NODE_ENV === "development" ? "http://127.0.0.1:8000/api/v1" : "https://youtubot.onrender.com/api/v1",
+    baseURL: process.env.NODE_ENV === "development" ? "http://127.0.0.1:8000/api/v1" : "https://backend.backend.ddonline.online/api/v1",
     withCredentials:true,
 });
 
