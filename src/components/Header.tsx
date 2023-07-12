@@ -1,21 +1,53 @@
-import { Stack, Box, Text, HStack, LightMode, useColorMode, useColorModeValue, IconButton, Button, useToast, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react"
+import { Stack, Box, Text, HStack, LightMode, useColorMode, useColorModeValue, IconButton, Button, useToast, Avatar, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react"
 import { Link } from "react-router-dom";
 import { AiFillYoutube } from "react-icons/ai";
 import { FaMoon, FaSun, FaAngleDown } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-import jwt_decode from 'jwt-decode';
-import { useState } from "react";
+import axios from "axios";
+import { useState, useEffect } from "react";
 
-import {GoogleLogin, GoogleOAuthProvider, useGoogleLogin} from "@react-oauth/google"
+import {useGoogleLogin, googleLogout} from "@react-oauth/google"
 
 export default function Header(){
     const { toggleColorMode } = useColorMode();
     const Icon = useColorModeValue(FaMoon, FaSun)
     const toast = useToast();
-    
-    // const clientId = '943691058272-2gap6eic690flr5l1li8rq2gmrvglqvs.apps.googleusercontent.com'
 
-    // const [ getGoogleAccount, setGetGoogleAccount ] = useState<any>(false);
+    const [ getGoogleAccount, setGetGoogleAccount ] = useState<any>([]);
+    const [ profile, setProfile ] = useState<any>([]);
+    const [ googleAccessToken, setGoogleAccessToken ] = useState<any>();
+
+    const GoogleButtonOnClick = useGoogleLogin({
+        onSuccess: tokenResponse => {
+            setGetGoogleAccount(tokenResponse)
+        },
+        onError: (error) => {
+            console.log(error);
+        },
+    });
+
+    useEffect(() => {
+        if (getGoogleAccount) {
+            axios
+                .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${getGoogleAccount.access_token}`, {
+                    headers: {
+                        Authorization: `Bearer ${getGoogleAccount.access_token}`,
+                        Accept: 'application/json'
+                    }
+                })
+                .then((res) => {
+                    setProfile(res.data);
+                    setGoogleAccessToken(getGoogleAccount.access_token);
+                })
+                .catch((err) => console.log(err));
+        }
+    }, [getGoogleAccount])
+
+    const logOut = () => {
+        googleLogout();
+        setProfile(null);
+        setGoogleAccessToken(null);
+    };
 
     return(
         <Stack
@@ -42,38 +74,29 @@ export default function Header(){
             </HStack>
             <HStack>
                 <IconButton onClick={toggleColorMode} variant={"ghost"} aria-label="Toggle dark mode" icon={<Icon/>} />
-                <Button leftIcon={<FcGoogle size={30} />} colorScheme="facebook" variant={"outline"} onClick={() => {
-                    toast({
-                        title:"Comming soon",
-                        status:"info",
-                        isClosable: true,
-                    });
-                }}>Continue with Google</Button>
-                {/* <GoogleOAuthProvider clientId={clientId}>
-                    <GoogleLogin onSuccess={(res) => {
-                        setGetGoogleAccount(!getGoogleAccount)
-
-                        console.log(res)
-                        let userObject = jwt_decode(res.credential as string);
-                        console.log(userObject)
-                    }} />
-                </GoogleOAuthProvider> */}
-                {/* {
-                    getGoogleAccount ? (
+                {
+                    !profile ? (
+                        <Button leftIcon={<FcGoogle size={30} />} colorScheme="facebook" variant={"outline"} onClick={() => GoogleButtonOnClick()}>
+                            Continue with Google
+                        </Button>
+                    ) : (
                         <Menu>
                             <MenuButton>
-                                <IconButton colorScheme="red" rounded={'xl'} aria-label="Google Menu" icon={<FaAngleDown />} />
+                                <Avatar name={profile?.name} src={profile?.picture} size={"sm"} />
                             </MenuButton>
                             <MenuList>
-                                <Link to={'/myvideo/'}>
+                                <Link to={`/myvideo/${googleAccessToken}`}>
                                     <MenuItem>
                                         My Video
                                     </MenuItem>
                                 </Link>
+                                <MenuItem onClick={logOut}>
+                                    LogOut
+                                </MenuItem>
                             </MenuList>
                         </Menu>
-                    ) : null
-                } */}
+                    )
+                }
             </HStack>
         </Stack>
     )

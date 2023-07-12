@@ -15,7 +15,7 @@ const router = createBrowserRouter([
                 element: <Home />
             },
             {
-                path:"myvideo/",
+                path:"myvideo/:accessToken",
                 element: <MyVideo />
             }
         ]
