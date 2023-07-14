@@ -1,34 +1,47 @@
 import { useParams } from "react-router-dom";
-import { Text } from "@chakra-ui/react";
+import { HStack, Text, VStack } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { IAuthenticatePostError, IAuthenticatePostSuccess, IAuthenticatePostVariables, googleAuthenticatePost } from "../api";
 import { useMutation } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function MyVideo(){
     const { accessToken } = useParams();
-    const accessTokenString = accessToken as string
     const [ getVideoData, setGetVideoData ] = useState<any>(false);
+    const [ getToken, setGetToken ] = useState<any>(false);
 
-    console.log(accessToken)
+    if(!getToken){
+        setGetToken(accessToken)
+    }
 
-    const mutation = useMutation<IAuthenticatePostSuccess, IAuthenticatePostError, IAuthenticatePostVariables>(googleAuthenticatePost, {
-        onSuccess:(data) => {
-            setGetVideoData(data)
-        },
-        onError:(error) => {
-            console.log(error)
+    useEffect(() => {
+        if (getToken) {
+            axios
+                .get(`https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true&maxResults=20&key=AIzaSyCQlLbuD2m63JCGNBfM7k2jFneaaxJN5vY`, {
+                    headers: {
+                        Authorization: `Bearer ${getToken}`,
+                        Accept: 'application/json'
+                    }
+                })
+                .then((res) => {
+                    // setProfile(res.data);
+                    // setGoogleAccessToken(getGoogleAccount.access_token);
+                    const channelId = res.data['items'][0].id
+                    axios
+                    .get(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=20&key=AIzaSyCQlLbuD2m63JCGNBfM7k2jFneaaxJN5vY`)
+                    .then((res) => {
+                        setGetVideoData(res.data.items)
+                    }).catch((err) => console.log(err))
+                })
+                .catch((err) => console.log(err));
         }
-    });
-    useEffect(() => {
-        mutation.mutate({access_token:accessTokenString})
-    }, [accessToken])
+    }, [getToken])
 
-    useEffect(() => {
-        console.log(getVideoData)
-    }, [getVideoData])
-
+    console.log(getVideoData)
     return(
-        <Text>{accessToken}</Text>
+        <HStack>
+            
+        </HStack>
     )
 }
