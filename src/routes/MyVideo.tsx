@@ -1,10 +1,11 @@
 import { useParams } from "react-router-dom";
-import { HStack, Text, VStack } from "@chakra-ui/react";
+import { Box, Button, Card, CardBody, CardFooter, Flex, HStack, Heading, Image, Stack, Text, VStack, useDisclosure } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { IAuthenticatePostError, IAuthenticatePostSuccess, IAuthenticatePostVariables, googleAuthenticatePost } from "../api";
 import { useMutation } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import VideoCard from "../components/VideoCard";
 
 export default function MyVideo(){
     const { accessToken } = useParams();
@@ -37,11 +38,24 @@ export default function MyVideo(){
                 .catch((err) => console.log(err));
         }
     }, [getToken])
-
     console.log(getVideoData)
+
     return(
-        <HStack>
-            
-        </HStack>
+        <Flex display={'flex'} justifyContent={'center'} mt={10}>
+            <VStack w={'50vh'}>
+                <Heading mb={10}>My VIDEOS</Heading>
+                {
+                    Object.values(getVideoData)?.map((video:any) => (
+                        (
+                            video.snippet.channelTitle === video.snippet.title ? (
+                                null
+                            ) : (
+                                <VideoCard video={video} />
+                            )
+                        )
+                    ))
+                }
+            </VStack>
+        </Flex>
     )
 }
