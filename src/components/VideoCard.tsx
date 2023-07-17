@@ -1,9 +1,17 @@
-import { Button, Card, CardBody, CardFooter, Heading, Image, Stack, Text, useDisclosure } from "@chakra-ui/react";
+import { Button, Card, CardBody, CardFooter, Heading, Image, Stack, Text, useDisclosure, useToast } from "@chakra-ui/react";
+import { ISearchLogPostError, ISearchLogPostSuccess, ISearchLogPostVariables, searchLogPost } from "../api";
+import { useState, useEffect } from "react";
 import ShowVideoModal from "./ShowVideoModal";
+import { useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
 
 interface VideoCardProps{
     video:any
 }
+
+let positiveScoreInModal:any=[]
+let nagativeScoreInModal:any=[]
+let neutralScoreInModal:any=[]
 
 export default function VideoCard({video}:VideoCardProps){
     const { isOpen:isVideoModalOpen, onClose:onVideoModalClose, onOpen:onVideoModalOpen } = useDisclosure();

@@ -17,7 +17,8 @@ export interface ISearchLogPostSuccess{
 }
 
 export interface ISearchLogPostError{
-    status:string;
+    code:string;
+    response:any;
 }
 
 export const searchLogPost = ({search_link}:ISearchLogPostVariables) => instance.post(`searchlog/`, {search_link}, {
@@ -25,22 +26,3 @@ export const searchLogPost = ({search_link}:ISearchLogPostVariables) => instance
         "X-CSRFToken" : Cookie.get("csrftoken") || "",
     },
 }).then((response) => response.data)
-
-export interface IAuthenticatePostVariables{
-    access_token:string;
-}
-
-export interface IAuthenticatePostSuccess{
-    response_obj:string;
-}
-
-export interface IAuthenticatePostError{
-    status:string;
-}
-
-export const googleAuthenticatePost = ({access_token}:IAuthenticatePostVariables) => {
-    return instance.post(`googleauthenticate/`, {access_token}, {
-        headers:{
-            "X-CSRFToken" : Cookie.get("csrftoken") || "",
-        },
-}).then((response) => response.data)}

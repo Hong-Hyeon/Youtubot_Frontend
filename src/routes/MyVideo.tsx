@@ -1,7 +1,6 @@
 import { useParams } from "react-router-dom";
 import { Box, Button, Card, CardBody, CardFooter, Flex, HStack, Heading, Image, Stack, Text, VStack, useDisclosure } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
-import { IAuthenticatePostError, IAuthenticatePostSuccess, IAuthenticatePostVariables, googleAuthenticatePost } from "../api";
 import { useMutation } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -38,7 +37,6 @@ export default function MyVideo(){
                 .catch((err) => console.log(err));
         }
     }, [getToken])
-    console.log(getVideoData)
 
     return(
         <Flex display={'flex'} justifyContent={'center'} mt={10}>
