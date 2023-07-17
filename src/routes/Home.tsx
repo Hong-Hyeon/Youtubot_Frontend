@@ -20,6 +20,8 @@ export default function Home(){
     const [ getReply, setGetReply ] = useState<any>(false);
     const [ getReplyLoading, setGetReplyLoading ] = useState<Boolean>(false);
     const [ getVideoLink, setGetVideoLink ] = useState<string>('');
+    const [ getErrorLoading, setGetErrorLoading ] = useState<Boolean>(false);
+    const [ getError, setGetError ] = useState<any>(false);
 
     const toast = useToast();
     const mutation = useMutation<ISearchLogPostSuccess, ISearchLogPostError, ISearchLogPostVariables>(searchLogPost, {
@@ -41,6 +43,7 @@ export default function Home(){
                 title:"Error",
                 status:"error"
             })
+            setGetError(error.response.data)
         }
     });
 
@@ -51,6 +54,16 @@ export default function Home(){
     }
 
     useEffect(() => {
+        if (getError){
+            setGetErrorLoading(true)
+            return
+        } else if(Object.keys(getReply)[0] == 'status'){
+            setGetErrorLoading(true)
+            return
+        } else if(Object.keys(getReply).length === 0){
+            return
+        }
+
         Object.entries(getReply).map((data:any) => {
             const author = data[0]
             const reply = Object.keys(data[1])
@@ -118,43 +131,47 @@ export default function Home(){
                                 />
                             </Box>
                             {
-                                getReplyLoading?(
-                                    <VStack mt={10} display={'flex'} justifyContent={'center'}>
-                                        <Box display={'flex'} textAlign={'center'}>
-                                            <Text as={'b'} fontSize={'2xl'}>
-                                                Click the button to read the comments
-                                            </Text>
-                                        </Box>
-                                        <HStack>
-                                            <VStack display={'flex'} textAlign={'center'}>
-                                                {
-                                                        <ReplyButton color="blue.300" Propensity={"Positive"} Data={positiveScore} ButtonIcon={<FaFaceLaughSquint />} />
-                                                }
+                                getErrorLoading ? (
+                                    <Text>이 영상에 대한 댓글이 없거나 GPT가 인식을 하지 못합니다.</Text>
+                                ) : (
+                                        getReplyLoading?(
+                                            <VStack mt={10} display={'flex'} justifyContent={'center'}>
+                                                <Box display={'flex'} textAlign={'center'}>
+                                                    <Text as={'b'} fontSize={'2xl'}>
+                                                        Click the button to read the comments
+                                                    </Text>
+                                                </Box>
+                                                <HStack>
+                                                    <VStack display={'flex'} textAlign={'center'}>
+                                                        {
+                                                                <ReplyButton color="blue.300" Propensity={"Positive"} Data={positiveScore} ButtonIcon={<FaFaceLaughSquint />} />
+                                                        }
+                                                    </VStack>
+                                                    <VStack display={'flex'} textAlign={'center'}>
+                                                        {
+                                                                <ReplyButton color="whiteAlpha" Propensity={"Neutral"} Data={neutralScore} ButtonIcon={<FaFaceGrinBeamSweat />} />
+                                                        }
+                                                    </VStack>
+                                                    <VStack display={'flex'} textAlign={'center'}>
+                                                        {
+                                                                <ReplyButton color="red.300" Propensity={"Nagative"} Data={nagativeScore} ButtonIcon={<FaFaceSadTear />} />
+                                                        }
+                                                    </VStack>
+                                                </HStack>
+        
+                                                <Button leftIcon={<FaArrowLeftLong />} colorScheme="red" mt={10} onClick={() => {
+                                                    positiveScore.splice(0, positiveScore.length)
+                                                    nagativeScore.splice(0, nagativeScore.length)
+                                                    neutralScore.splice(0, neutralScore.length)
+                                                    setGetReply(false)
+                                                    setGetReplyLoading(false)
+                                                    setGetVideoLink('')
+                                                }}>
+                                                    Go to Home
+                                                </Button>
                                             </VStack>
-                                            <VStack display={'flex'} textAlign={'center'}>
-                                                {
-                                                        <ReplyButton color="whiteAlpha" Propensity={"Neutral"} Data={neutralScore} ButtonIcon={<FaFaceGrinBeamSweat />} />
-                                                }
-                                            </VStack>
-                                            <VStack display={'flex'} textAlign={'center'}>
-                                                {
-                                                        <ReplyButton color="red.300" Propensity={"Nagative"} Data={nagativeScore} ButtonIcon={<FaFaceSadTear />} />
-                                                }
-                                            </VStack>
-                                        </HStack>
-
-                                        <Button leftIcon={<FaArrowLeftLong />} colorScheme="red" mt={10} onClick={() => {
-                                            positiveScore.splice(0, positiveScore.length)
-                                            nagativeScore.splice(0, nagativeScore.length)
-                                            neutralScore.splice(0, neutralScore.length)
-                                            setGetReply(false)
-                                            setGetReplyLoading(false)
-                                            setGetVideoLink('')
-                                        }}>
-                                            Go to Home
-                                        </Button>
-                                    </VStack>
-                                ):null
+                                        ) : null
+                                )
                             }
                         </Box>
                     </VStack>
